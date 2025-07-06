@@ -845,6 +845,16 @@
               <FileType>5</FileType>
               <FilePath>..\lib\upacker.h</FilePath>
             </File>
+            <File>
+              <FileName>rt_user.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\lib\rt_user.c</FilePath>
+            </File>
+            <File>
+              <FileName>rt_user.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\lib\rt_user.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

@@ -25,6 +25,7 @@
 "rttteamd\stm32f4xx_hal_uart.o"
 "rttteamd\system_stm32f4xx.o"
 "rttteamd\upacker.o"
+"rttteamd\rt_user.o"
 "rttteamd\context_rvds.o"
 "rttteamd\board.o"
 "rttteamd\clock.o"

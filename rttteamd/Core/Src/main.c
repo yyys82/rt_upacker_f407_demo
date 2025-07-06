@@ -27,8 +27,8 @@
 //#include "board.h"
 #include "rtthread.h"
 #include "upacker.h"
-upacker_inst msg_packer;
-uint16_t state;
+#include "rt_user.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -39,40 +39,6 @@ uint16_t state;
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
-
-
-/**
-  * @brief  串口dma发送接口
-  * @note   
-  * @param  *d: 
-  * @param  size: 
-  * @retval None
-  */
-static void uart_send(uint8_t *d, uint16_t size)
-{
-   // dbuff_push(&uart3_dbuff, d, size);
-		HAL_UART_Transmit(&huart2,d,size,1000);
- // HAL_UART_Transmit_DMA(&huart2,d,size);
-}
-
-
-/**
-  * @brief  消息解析回调
-  * @note   
-  * @param  *d: 
-  * @param  size: 
-  * @retval None
-  */
-uint16_t a;
-static void handle_cb(uint8_t *d, uint16_t size)
-{
-    //接收到payload
-    //rt_kprintf("pack len%d", size);
-	
-		//	HAL_UART_Transmit(&huart2,"okwwwww",7,2000);
-		  HAL_UART_Transmit_DMA(&huart2,"okwwwww",7);
-	    a=d[0];
-}
 
 
 //init packer
@@ -114,20 +80,9 @@ void SystemClock_Config(void);
 
 
 
-/* �����߳̿��ƿ� */
-static struct rt_thread led1_thread;
-
-/* �����߳̿�ջʱҪ��RT_ALIGN_SIZE���ֽڶ��� */
-ALIGN(RT_ALIGN_SIZE)
-/* �����߳�ջ */
-static rt_uint8_t rt_led1_thread_stack[1024];
 
 
-static void led1_thread_entry(void* parameter);
 
-
-#define RX_BUF_SIZE 30
-uint8_t rx_buf[RX_BUF_SIZE]; // 全局接收缓冲区
 
 
 
@@ -165,21 +120,8 @@ int main(void)
   MX_DMA_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-    rt_thread_init(&led1_thread,                 /* �߳̿��ƿ� */
-                "led1",                       /* �߳����� */
-                led1_thread_entry,            /* �߳���ں��� */
-                RT_NULL,                      /* �߳���ں������� */
-                &rt_led1_thread_stack[0],     /* �߳�ջ��ʼ��ַ */
-                sizeof(rt_led1_thread_stack), /* �߳�ջ��С */
-                3,                            /* �̵߳����ȼ� */
-                20);                          /* �߳�ʱ��Ƭ */
-    upacker_init(&msg_packer, handle_cb, uart_send);
-    __HAL_DMA_DISABLE_IT(huart2.hdmarx, DMA_IT_HT); // 关闭过半中断
-    HAL_UARTEx_ReceiveToIdle_DMA(&huart2, rx_buf, RX_BUF_SIZE);
-	uint8_t buff[2];
-			  buff[0] = 0x88;
-        buff[1] = 0x89;
-        upacker_pack(&msg_packer,(uint8_t *)buff, 2);
+
+  rt_process_init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -195,32 +137,17 @@ int main(void)
     * ����component.c�ļ��е�rtthread_startup()����������ˡ�
     * ������main�����У�ֻ��Ҫ�����̺߳������̼߳��ɡ�
     */
+   rt_process_entry();
 
+		
+		
+		
+		
+		
+		
+		
+		
 
-    rt_thread_startup(&led1_thread);             /* �����̣߳��������� */
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
 		
 		
   }
@@ -273,52 +200,6 @@ void SystemClock_Config(void)
 
 
 
-
-
- uint32_t tick;
-uint16_t led;
-static void led1_thread_entry(void* parameter)
-{
-    while (1)
-    {
-        //LED1_ON;
-			led=100;
-        rt_thread_delay(500);   /* ��ʱ500��tick */
-      led=200;
-       // LED1_OFF;
-        rt_thread_delay(500);   /* ��ʱ500��tick */
-     tick=rt_tick_get();
-			
-		
-			state++;
-		//HAL_UART_Transmit_DMA(&huart2,"123",3);
-    }
-}
-
-void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
-{
-  if(huart->Instance == USART2 && Size > 0)
-  {
-    // 1. 数据回显（DMA发送）
-   // HAL_UART_Transmit_DMA(&huart2, rx_buf, Size);
-		
-		
-		upacker_unpack(&msg_packer, (uint8_t *)rx_buf,sizeof(rx_buf)-4);
-		//upacker_unpack(&msg_packer, (uint8_t *)rx_buffer, msg.size);
-   // state =1;
-//    // 2. 指令解析（支持任意位置包含指令）
-//    if(memmem(rx_buf, Size, "ON", 2) != NULL) {
-//      HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
-//    }
-//    else if(memmem(rx_buf, Size, "OFF", 3) != NULL) {
-//      HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
-//    }
-    
-    // 3. 重启接收（关键！）
-    HAL_UARTEx_ReceiveToIdle_DMA(&huart2, rx_buf, RX_BUF_SIZE);
-    __HAL_DMA_DISABLE_IT(huart2.hdmarx, DMA_IT_HT); // 关闭过半中断
-  }
-}
 
 
 
